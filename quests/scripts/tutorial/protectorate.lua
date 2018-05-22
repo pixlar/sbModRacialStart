@@ -116,11 +116,13 @@ function setStage(newStage)
   if newStage ~= self.missionStage then
     if newStage == 1 then
       self.hasLounged = false
-      setPester("protectorateExitBedPester", 20)
+      local exitBedPester = config.getParameter("radioMessages.exitBedPester","protectorateExitBedPester")
+      setPester(exitBedPester, 20)
       quest.setObjectiveList({{config.getParameter("descriptions.graduate"), false}})
     elseif newStage == 2 then
       player.radioMessage("protectorateDormRoomTutorial", 1)
-      setPester("protectorateDormRoomPester", 40)
+      local dormRoomPester = config.getParameter("radioMessages.dormRoomPester","protectorateDormRoomPester")
+      setPester(dormRoomPester, 40)
     elseif newStage == 3 then
       quest.setIndicators({"uniformLocker"})
       player.radioMessage("protectorateLoungeTutorial")
@@ -142,7 +144,8 @@ function setStage(newStage)
       player.radioMessage("protectorateGetWeapon")
     elseif newStage == 8 then
       quest.setIndicators({})
-      setPester("protectorateWeaponPester", 15)
+      local weaponPester = config.getParameter("radioMessages.weaponPester","protectorateWeaponPester")
+      setPester(weaponPester, 15)
     elseif newStage == 10 then
       world.sendEntityMessage(entity.id(), "playAltMusic", nil, 1.0)
       world.sendEntityMessage(entity.id(), "playCinematic", config.getParameter("endpointCinematic"))
@@ -181,9 +184,19 @@ function updateStage(dt)
     if self.midpointTransitionTimer > 0 then
       self.midpointTransitionTimer = self.midpointTransitionTimer - dt
       if self.midpointTransitionTimer <= 0 then
-        player.radioMessage("protectorateStage5")
+        local stageFive = config.getParameter("radioMessages.stageFive","protectorateStage5")
+        player.radioMessage(stageFive)
         world.sendEntityMessage(self.managerId, "midpointSwitch")
         quest.setIndicators({"beamaxe"})
+        -- M4
+        -- Maybe option to point at an object and teleport the player on top of it?
+        local midpointTeleportPosition = config.getParameter("midpointTeleportPosition")
+        if type(midpointTeleportPosition) == "string" then
+          local objects = world.objectQuery(mcontroller.position(), 300, { order = "nearest", name = midpointTeleportPosition })
+          local entityId = objects[1]
+          midpointTeleportPosition = world.entityPosition(entityId)
+          midpointTeleportPosition = {midpointTeleportPosition[1],midpointTeleportPosition[2]+2}
+        end
         mcontroller.setPosition(config.getParameter("midpointTeleportPosition"))
         quest.setObjectiveList({{config.getParameter("descriptions.matterManipulator"), false}})
       end
@@ -242,15 +255,19 @@ function stageEnterArea(areaName)
     end
   elseif areaName == "collapsedGallery" then
     if self.missionStage == 5 then
-      player.radioMessage("protectorateCollapsedGalleryNoMM")
+      local collapsedGalleryNoMM = config.getParameter("radioMessages.collapsedGalleryNoMM","protectorateCollapsedGalleryNoMM")
+      player.radioMessage(collapsedGalleryNoMM)
     else
-      player.radioMessage("protectorateCollapsedGallery")
-      setPester("protectorateCollapsedGalleryPester", 20)
+      local collapsedGallery = config.getParameter("radioMessages.collapsedGallery","protectorateCollapsedGallery")
+      player.radioMessage(collapsedGallery)
+      local collapsedGalleryPester = config.getParameter("radioMessages.collapsedGalleryPester","protectorateCollapsedGalleryPester")
+      setPester(collapsedGalleryPester, 20)
     end
   elseif areaName == "pastCollapsedGallery" then
     setPester()
   elseif areaName == "floodedDoor" then
-    player.radioMessage("protectorateFloodedDoor")
+    local floodedDoor = config.getParameter("radioMessages.floodedDoor","protectorateFloodedDoor")
+    player.radioMessage(floodedDoor)
   elseif areaName == "rooftop" then
     player.radioMessage("protectorateRooftop")
   elseif areaName == "duct" then
